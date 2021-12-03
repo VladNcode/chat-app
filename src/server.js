@@ -12,16 +12,13 @@ process.on('uncaughtException', err => {
 const server = http.createServer(app);
 const io = socketio(server);
 
-let count = 0;
-
 io.on('connection', socket => {
   console.log('a user connected');
-  socket.emit('countUpdated', count);
 
-  socket.on('increment', () => {
-    count++;
-    console.log(count);
-    io.emit('countUpdated', count);
+  socket.emit('welcome joined user from the server');
+
+  socket.on('client message recieved', msg => {
+    io.emit('server share message', msg);
   });
 });
 
