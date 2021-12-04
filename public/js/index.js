@@ -1,10 +1,16 @@
 const socket = io();
+
+const welcomeMsg = document.querySelector('#welcome');
 const messageForm = document.querySelector('.message-form');
 const messageFormInput = document.getElementById('message-input');
 const messageFormButton = document.getElementById('message-btn');
 const messageList = document.querySelector('.message');
-const welcomeMsg = document.querySelector('#welcome');
-const geoBtn = document.querySelector('#send-location');
+const geoButton = document.querySelector('#send-location');
+const messages = document.querySelector('.messages');
+
+//* Templates
+const messageTemplate = document.querySelector('#message-template').innerHTML;
+const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 const user = prompt('Tell us your username');
 if (user) socket.emit('user have chosen a nickname', user);
@@ -16,24 +22,30 @@ socket.on('welcome joined user from the server', () => {
 socket.on('message', data => {
   if (data === 'entered the room') return;
   if (data === 'undefined left the room 👋') return;
-  console.log(data);
+
+  const html = Mustache.render(messageTemplate, {
+    message: data,
+  });
+  messages.insertAdjacentHTML('beforeend', html);
 });
 
-socket.on('server share message', msg => {
-  li = document.createElement('li');
-  li.innerHTML = msg;
-  messageList.appendChild(li);
+socket.on('server share location', data => {
+  const html = Mustache.render(locationTemplate, {
+    location: data.loc,
+    user: data.user,
+  });
+  messages.insertAdjacentHTML('beforeend', html);
 });
 
 messageForm.addEventListener('submit', e => {
   e.preventDefault();
 
-  // disable button
-  messageFormButton.setAttribute('disabled', 'disabled');
-
   if (messageFormInput.value.length > 0) {
     let msg = user + ': ' + messageFormInput.value;
     messageFormInput.value = '';
+    messageFormInput.focus();
+    messageFormButton.setAttribute('disabled', 'disabled');
+
     socket.emit('client message recieved', msg, message => {
       console.log('The message was delivered to the server!', message);
 
@@ -43,10 +55,10 @@ messageForm.addEventListener('submit', e => {
   }
 });
 
-geoBtn.addEventListener('click', function () {
+geoButton.addEventListener('click', function () {
   if (!navigator.geolocation) return alert('Geolocation not available');
 
-  geoBtn.setAttribute('disabled', 'disabled');
+  geoButton.setAttribute('disabled', 'disabled');
 
   const options = {
     enableHighAccuracy: true,
@@ -63,7 +75,7 @@ geoBtn.addEventListener('click', function () {
 
     socket.emit('client location recieved', data, message => {
       console.log('User shared location!', message);
-      geoBtn.removeAttribute('disabled');
+      geoButton.removeAttribute('disabled');
     });
   };
 

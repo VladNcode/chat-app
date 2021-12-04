@@ -30,8 +30,12 @@ io.on('connection', socket => {
 
   socket.on('client location recieved', (data, callback) => {
     socket.broadcast.emit(
-      'message',
-      `${socket.username} shared his location: https://google.com/maps?q=${data.lat},${data.lng}`
+      'server share location',
+      // `${socket.username} shared his location: https://google.com/maps?q=${data.lat},${data.lng}`
+      {
+        user: socket.username,
+        loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
+      }
     );
 
     callback('Server shared location!');
@@ -45,7 +49,7 @@ io.on('connection', socket => {
 
     msg = filter.clean(msg);
 
-    io.emit('server share message', msg);
+    io.emit('message', msg);
     callback('Delivered!');
   });
 
