@@ -36,7 +36,7 @@ let msg;
 
 socket.on('message', data => {
   if (data === 'entered the room') return;
-  if (data === 'undefined left the room') return;
+  if (data === 'undefined left the room 👋') return;
   console.log(data);
 });
 
@@ -58,8 +58,8 @@ form.addEventListener('submit', e => {
   if (input.value.length > 0) {
     msg = user + ': ' + input.value;
     input.value = '';
-    socket.emit('client message recieved', msg);
+    socket.emit('client message recieved', msg, message => {
+      console.log('The message was delivered to the server!', message);
+    });
   }
 });
-
-// https://google.com/maps?q=0,0

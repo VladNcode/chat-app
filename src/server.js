@@ -2,6 +2,7 @@ require('dotenv').config({ path: './config.env' });
 const app = require('./app');
 const http = require('http');
 const socketio = require('socket.io');
+const Filter = require('bad-words');
 
 process.on('uncaughtException', err => {
   console.log(err.name, err.message);
@@ -23,7 +24,7 @@ io.on('connection', socket => {
   socket.on('user have chosen a nickname', userName => {
     socket.username = userName;
     console.log(`${socket.username} connected`);
-    socket.broadcast.emit('message', `${userName} has joined a room`);
+    socket.broadcast.emit('message', `${userName} has joined a room 👋`);
     socket.emit('message', 'You have joined a room');
   });
 
@@ -34,13 +35,19 @@ io.on('connection', socket => {
     );
   });
 
-  socket.on('client message recieved', msg => {
+  socket.on('client message recieved', (msg, callback) => {
+    const filter = new Filter();
+    if (filter.isProfane(msg)) {
+      return callback('Profanity is not allowed!');
+    }
+
     io.emit('server share message', msg);
+    callback('Delivered!');
   });
 
   socket.on('disconnect', () => {
     if (socket.username) console.log(`${socket.username} disconnected`);
-    socket.broadcast.emit('message', `${socket.username} left the room`);
+    socket.broadcast.emit('message', `${socket.username} left the room 👋`);
   });
 });
 
