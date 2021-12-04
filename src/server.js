@@ -17,21 +17,21 @@ const io = socketio(server);
 //! socket.emit === translate to current user
 
 io.on('connection', socket => {
-  io.emit('server share user connected');
+  io.emit('message', 'entered the room');
   socket.emit('welcome joined user from the server');
 
   socket.on('user have chosen a nickname', userName => {
     socket.username = userName;
     console.log(`${socket.username} connected`);
-    socket.broadcast.emit('server share user connected', userName);
-    socket.emit('you have entered the room');
+    socket.broadcast.emit('message', `${userName} has joined a room`);
+    socket.emit('message', 'You have joined a room');
   });
 
   socket.on('client location recieved', data => {
-    socket.broadcast.emit('server share location', {
-      data,
-      user: socket.username,
-    });
+    socket.broadcast.emit(
+      'message',
+      `${socket.username} shared his location: https://google.com/maps?q=${data.lat},${data.lng}`
+    );
   });
 
   socket.on('client message recieved', msg => {
@@ -40,7 +40,7 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     if (socket.username) console.log(`${socket.username} disconnected`);
-    socket.broadcast.emit('server share user disconnected', socket.username);
+    socket.broadcast.emit('message', `${socket.username} left the room`);
   });
 });
 

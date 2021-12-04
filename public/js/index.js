@@ -34,34 +34,22 @@ geoBtn.addEventListener('click', function () {
 const user = prompt('Tell us your username');
 let msg;
 
+socket.on('message', data => {
+  if (data === 'entered the room') return;
+  if (data === 'undefined left the room') return;
+  console.log(data);
+});
+
 if (user) socket.emit('user have chosen a nickname', user);
 
 socket.on('welcome joined user from the server', () => {
   welcomeMsg.textContent = `Welcome ${user}`;
 });
 
-socket.on('you have entered the room', () => {
-  console.log('You have entered the room');
-});
-
-socket.on('server share user connected', nickName => {
-  if (nickName) console.log(`${nickName} entered the room`);
-});
-
 socket.on('server share message', msg => {
   li = document.createElement('li');
   li.innerHTML = msg;
   messageList.appendChild(li);
-});
-
-socket.on('server share location', data => {
-  console.log(
-    `${data.user} shared his position: lat ${data.data.lat}, lon ${data.data.lng}`
-  );
-});
-
-socket.on('server share user disconnected', user => {
-  if (user) console.log(`${user} left the room`);
 });
 
 form.addEventListener('submit', e => {
@@ -73,3 +61,5 @@ form.addEventListener('submit', e => {
     socket.emit('client message recieved', msg);
   }
 });
+
+// https://google.com/maps?q=0,0
