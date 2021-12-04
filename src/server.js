@@ -27,6 +27,13 @@ io.on('connection', socket => {
     socket.emit('you have entered the room');
   });
 
+  socket.on('client location recieved', data => {
+    socket.broadcast.emit('server share location', {
+      data,
+      user: socket.username,
+    });
+  });
+
   socket.on('client message recieved', msg => {
     io.emit('server share message', msg);
   });

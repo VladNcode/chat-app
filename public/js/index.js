@@ -3,6 +3,33 @@ const form = document.querySelector('.form');
 const input = document.getElementById('input');
 const messageList = document.querySelector('.message');
 const welcomeMsg = document.querySelector('#welcome');
+const geoBtn = document.querySelector('#send-location');
+
+geoBtn.addEventListener('click', function () {
+  if (!navigator.geolocation) return alert('Geolocation not available');
+
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
+
+  const success = function (pos) {
+    const crd = pos.coords;
+    const data = {
+      lat: crd.latitude,
+      lng: crd.longitude,
+    };
+
+    socket.emit('client location recieved', data);
+  };
+
+  const error = function (err) {
+    console.log(`ERROR(${err.code}): ${err.message}`);
+  };
+
+  navigator.geolocation.getCurrentPosition(success, error, options);
+});
 
 const user = prompt('Tell us your username');
 let msg;
@@ -25,6 +52,12 @@ socket.on('server share message', msg => {
   li = document.createElement('li');
   li.innerHTML = msg;
   messageList.appendChild(li);
+});
+
+socket.on('server share location', data => {
+  console.log(
+    `${data.user} shared his position: lat ${data.data.lat}, lon ${data.data.lng}`
+  );
 });
 
 socket.on('server share user disconnected', user => {
