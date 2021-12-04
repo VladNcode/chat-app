@@ -12,13 +12,28 @@ process.on('uncaughtException', err => {
 const server = http.createServer(app);
 const io = socketio(server);
 
-io.on('connection', socket => {
-  console.log('a user connected');
+//! io.emit === translate to everyone
+//! socket.broadcast.emit === translate to everyone except current user
+//! socket.emit === translate to current user
 
+io.on('connection', socket => {
+  io.emit('server share user connected');
   socket.emit('welcome joined user from the server');
+
+  socket.on('user have chosen a nickname', userName => {
+    socket.username = userName;
+    console.log(`${socket.username} connected`);
+    socket.broadcast.emit('server share user connected', userName);
+    socket.emit('you have entered the room');
+  });
 
   socket.on('client message recieved', msg => {
     io.emit('server share message', msg);
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.username) console.log(`${socket.username} disconnected`);
+    socket.broadcast.emit('server share user disconnected', socket.username);
   });
 });
 
