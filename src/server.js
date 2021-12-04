@@ -4,6 +4,8 @@ const http = require('http');
 const socketio = require('socket.io');
 const Filter = require('bad-words');
 
+const { generateMessage } = require('./utils/messages');
+
 process.on('uncaughtException', err => {
   console.log(err.name, err.message);
   console.log('UNCAUGHT EXCEPTION 💥 REJECTED REJECTED REJECTED');
@@ -18,14 +20,14 @@ const io = socketio(server);
 //! socket.emit === translate to current user
 
 io.on('connection', socket => {
-  io.emit('message', 'entered the room');
+  io.emit('message', generateMessage('entered the room'));
   socket.emit('welcome joined user from the server');
 
   socket.on('user have chosen a nickname', userName => {
     socket.username = userName;
     console.log(`${socket.username} connected`);
-    socket.broadcast.emit('message', `${userName} has joined a room 👋`);
-    socket.emit('message', 'You have joined a room');
+    socket.broadcast.emit('message', generateMessage(`${userName} has joined a room 👋`));
+    socket.emit('message', generateMessage('You have joined a room'));
   });
 
   socket.on('client location recieved', (data, callback) => {
@@ -49,13 +51,13 @@ io.on('connection', socket => {
 
     msg = filter.clean(msg);
 
-    io.emit('message', msg);
+    io.emit('message', generateMessage(msg));
     callback('Delivered!');
   });
 
   socket.on('disconnect', () => {
     if (socket.username) console.log(`${socket.username} disconnected`);
-    socket.broadcast.emit('message', `${socket.username} left the room 👋`);
+    socket.broadcast.emit('message', generateMessage(`${socket.username} left the room 👋`));
   });
 });
 

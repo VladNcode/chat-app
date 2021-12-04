@@ -24,7 +24,7 @@
     <h2 id="welcome"></h2>
     <div class="container">
       <form class="message-form">
-        <input type="text" id="message-input" />
+        <input type="text" id="message-input" autocomplete="off" />
         <button id="message-btn">Click</button>
       </form>
       <button id="send-location">Send location</button>
@@ -34,13 +34,13 @@
 
       <script id="message-template" type="text/html">
         <div>
-          <p>{{message}}</p>
+          <p>{{createdAt}} {{message}}</p>
         </div>
       </script>
 
       <script id="location-template" type="text/html">
         <div>
-          <a href="{{location}}" target="_blank">{{user}} shared his location</a>
+          <a class="location-link" href="{{location}}" target="_blank">{{createdAt}} {{message}}</a>
         </div>
       </script>
     </div>

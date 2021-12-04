@@ -20,28 +20,29 @@ socket.on('welcome joined user from the server', () => {
 });
 
 socket.on('message', data => {
-  if (data === 'entered the room') return;
-  if (data === 'undefined left the room 👋') return;
+  if (data.text === 'entered the room') return;
+  if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
-    message: data,
+    message: data.text,
+    createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
-  messages.insertAdjacentHTML('beforeend', html);
+  messages.insertAdjacentHTML('afterbegin', html);
 });
 
 socket.on('server share location', data => {
   const html = Mustache.render(locationTemplate, {
     location: data.loc,
-    user: data.user,
+    message: `${moment(data.createdAt).format('HH:mm:ss')} ✉️ ${data.user} shared his location`,
   });
-  messages.insertAdjacentHTML('beforeend', html);
+  messages.insertAdjacentHTML('afterbegin', html);
 });
 
 messageForm.addEventListener('submit', e => {
   e.preventDefault();
 
   if (messageFormInput.value.length > 0) {
-    let msg = user + ': ' + messageFormInput.value;
+    let msg = user + '🗯️: ' + messageFormInput.value;
     messageFormInput.value = '';
     messageFormInput.focus();
     messageFormButton.setAttribute('disabled', 'disabled');
