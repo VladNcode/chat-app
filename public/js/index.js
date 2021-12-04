@@ -1,12 +1,52 @@
 const socket = io();
-const form = document.querySelector('.form');
-const input = document.getElementById('input');
+const messageForm = document.querySelector('.message-form');
+const messageFormInput = document.getElementById('message-input');
+const messageFormButton = document.getElementById('message-btn');
 const messageList = document.querySelector('.message');
 const welcomeMsg = document.querySelector('#welcome');
 const geoBtn = document.querySelector('#send-location');
 
+const user = prompt('Tell us your username');
+if (user) socket.emit('user have chosen a nickname', user);
+
+socket.on('welcome joined user from the server', () => {
+  welcomeMsg.textContent = `Welcome ${user}`;
+});
+
+socket.on('message', data => {
+  if (data === 'entered the room') return;
+  if (data === 'undefined left the room 👋') return;
+  console.log(data);
+});
+
+socket.on('server share message', msg => {
+  li = document.createElement('li');
+  li.innerHTML = msg;
+  messageList.appendChild(li);
+});
+
+messageForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  // disable button
+  messageFormButton.setAttribute('disabled', 'disabled');
+
+  if (messageFormInput.value.length > 0) {
+    let msg = user + ': ' + messageFormInput.value;
+    messageFormInput.value = '';
+    socket.emit('client message recieved', msg, message => {
+      console.log('The message was delivered to the server!', message);
+
+      // enable button
+      messageFormButton.removeAttribute('disabled');
+    });
+  }
+});
+
 geoBtn.addEventListener('click', function () {
   if (!navigator.geolocation) return alert('Geolocation not available');
+
+  geoBtn.setAttribute('disabled', 'disabled');
 
   const options = {
     enableHighAccuracy: true,
@@ -21,7 +61,10 @@ geoBtn.addEventListener('click', function () {
       lng: crd.longitude,
     };
 
-    socket.emit('client location recieved', data);
+    socket.emit('client location recieved', data, message => {
+      console.log('User shared location!', message);
+      geoBtn.removeAttribute('disabled');
+    });
   };
 
   const error = function (err) {
@@ -29,37 +72,4 @@ geoBtn.addEventListener('click', function () {
   };
 
   navigator.geolocation.getCurrentPosition(success, error, options);
-});
-
-const user = prompt('Tell us your username');
-let msg;
-
-socket.on('message', data => {
-  if (data === 'entered the room') return;
-  if (data === 'undefined left the room 👋') return;
-  console.log(data);
-});
-
-if (user) socket.emit('user have chosen a nickname', user);
-
-socket.on('welcome joined user from the server', () => {
-  welcomeMsg.textContent = `Welcome ${user}`;
-});
-
-socket.on('server share message', msg => {
-  li = document.createElement('li');
-  li.innerHTML = msg;
-  messageList.appendChild(li);
-});
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
-
-  if (input.value.length > 0) {
-    msg = user + ': ' + input.value;
-    input.value = '';
-    socket.emit('client message recieved', msg, message => {
-      console.log('The message was delivered to the server!', message);
-    });
-  }
 });

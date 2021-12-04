@@ -28,18 +28,22 @@ io.on('connection', socket => {
     socket.emit('message', 'You have joined a room');
   });
 
-  socket.on('client location recieved', data => {
+  socket.on('client location recieved', (data, callback) => {
     socket.broadcast.emit(
       'message',
       `${socket.username} shared his location: https://google.com/maps?q=${data.lat},${data.lng}`
     );
+
+    callback('Server shared location!');
   });
 
   socket.on('client message recieved', (msg, callback) => {
     const filter = new Filter();
-    if (filter.isProfane(msg)) {
-      return callback('Profanity is not allowed!');
-    }
+    // if (filter.isProfane(msg)) {
+    //   return callback('Profanity is not allowed!');
+    // }
+
+    msg = filter.clean(msg);
 
     io.emit('server share message', msg);
     callback('Delivered!');
