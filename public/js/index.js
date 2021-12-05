@@ -14,9 +14,9 @@ const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 //* Options
 
-let { username: user, room } = Qs.parse(location.search.slice(1));
+let { username: user, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
-if (user) socket.emit('user have chosen a nickname', user);
+if (user && room) socket.emit('user have chosen a nickname', { user, room });
 
 socket.on('welcome joined user from the server', () => {
   welcomeMsg.textContent = `Welcome ${user}`;
@@ -26,7 +26,8 @@ socket.on('message', data => {
   if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
-    user: data.user === user ? 'You' : data.user,
+    // user: data.user === user ? 'You' : data.user,
+    user: data.user,
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });

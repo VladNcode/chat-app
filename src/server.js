@@ -19,17 +19,28 @@ const io = socketio(server);
 //! socket.broadcast.emit === translate to everyone except current user
 //! socket.emit === translate to current user
 
-io.on('connection', socket => {
-  socket.emit('welcome joined user from the server');
+//! io.to.emit === emits event to everybody in a specific room
+//! socket.broadcast.to.emit === emits event to everyone except current user (limited to room)
 
-  socket.on('user have chosen a nickname', userName => {
-    socket.username = userName;
+io.on('connection', socket => {
+  socket.on('user have chosen a nickname', ({ user, room }) => {
+    socket.emit('welcome joined user from the server');
+
+    socket.join(room);
+    socket.username = user;
     console.log(`${socket.username} connected`);
-    socket.broadcast.emit('message', {
-      ...generateMessage(`${userName} has joined a room 👋`),
+
+    io.to(room).emit('message', {
+      ...generateMessage(`${user} has joined a room 👋`),
       user: 'Server',
     });
-    socket.emit('message', { ...generateMessage('You have joined a room'), user: 'Server' });
+
+    // socket.broadcast.emit('message', {
+    //   ...generateMessage(`${user} has joined a room 👋`),
+    //   user: 'Server',
+    // });
+
+    // socket.emit('message', { ...generateMessage('You have joined a room'), user: 'Server' });
   });
 
   socket.on('client location recieved', (data, callback) => {
