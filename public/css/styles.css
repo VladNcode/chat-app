@@ -85,6 +85,10 @@ button:disabled {
 
 /* Chat Page Layout */
 
+.welcome-messages {
+  padding-left: 24px;
+}
+
 .chat {
   display: flex;
 }
@@ -128,11 +132,6 @@ button:disabled {
   color: #777;
   font-size: 14px;
 }
-
-/* .message a {
-  color: #0070cc;
-  margin: 10 20;
-} */
 
 /* Message Composition Styles */
 

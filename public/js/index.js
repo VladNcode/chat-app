@@ -1,6 +1,7 @@
 const socket = io();
 
 const welcomeMsg = document.querySelector('#welcome');
+const welcomeRoom = document.querySelector('#roomid');
 const messageForm = document.querySelector('.message-form');
 const messageFormInput = document.getElementById('message-input');
 const messageFormButton = document.getElementById('message-btn');
@@ -20,6 +21,7 @@ if (user && room) socket.emit('user have chosen a nickname', { user, room });
 
 socket.on('welcome joined user from the server', () => {
   welcomeMsg.textContent = `Welcome ${user}`;
+  welcomeRoom.textContent = `You are in "${room}"`;
 });
 
 socket.on('message', data => {
