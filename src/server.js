@@ -31,14 +31,11 @@ io.on('connection', socket => {
   });
 
   socket.on('client location recieved', (data, callback) => {
-    socket.broadcast.emit(
-      'server share location',
-      // `${socket.username} shared his location: https://google.com/maps?q=${data.lat},${data.lng}`
-      {
-        user: socket.username,
-        loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
-      }
-    );
+    socket.broadcast.emit('server share location', {
+      user: socket.username,
+      loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
+      createdAt: new Date().getTime(),
+    });
 
     callback('Server shared location!');
   });

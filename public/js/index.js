@@ -33,7 +33,8 @@ socket.on('message', data => {
 socket.on('server share location', data => {
   const html = Mustache.render(locationTemplate, {
     location: data.loc,
-    message: `${moment(data.createdAt).format('HH:mm:ss')} ✉️ ${data.user} shared his location`,
+    message: `✉️ ${data.user} shared his location`,
+    createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('afterbegin', html);
 });
