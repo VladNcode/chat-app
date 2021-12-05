@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon" />
-    <link rel="stylesheet" href="./css/styles.min.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
     <title>Chat app</title>
     <script
       defer
@@ -49,12 +49,12 @@
       </script>
 
       <script id="location-template" type="text/html">
-        <div>
+        <div class="message">
           <p>
             <span class="message__name">{{user}} 🗯️</span>
             <span class="message__meta">{{createdAt}}</span>
           </p>
-          <p><a class="location-link" href="{{location}}" target="_blank">{{message}}</a></p>
+          <p><a id="colored-link" href="{{location}}" target="_blank">{{message}}</a></p>
         </div>
       </script>
     </div>

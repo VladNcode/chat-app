@@ -20,7 +20,6 @@ socket.on('welcome joined user from the server', () => {
 });
 
 socket.on('message', data => {
-  if (data.text === 'entered the room') return;
   if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
@@ -35,7 +34,7 @@ socket.on('server share location', data => {
   const html = Mustache.render(locationTemplate, {
     user: data.user,
     location: data.loc,
-    message: `shared location`,
+    message: `Shared location`,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('afterbegin', html);

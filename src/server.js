@@ -20,7 +20,6 @@ const io = socketio(server);
 //! socket.emit === translate to current user
 
 io.on('connection', socket => {
-  io.emit('message', generateMessage('entered the room'));
   socket.emit('welcome joined user from the server');
 
   socket.on('user have chosen a nickname', userName => {
@@ -57,7 +56,10 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     if (socket.username) console.log(`${socket.username} disconnected`);
-    socket.broadcast.emit('message', generateMessage(`${socket.username} left the room 👋`));
+    socket.broadcast.emit('message', {
+      ...generateMessage(`${socket.username} left the room 👋`),
+      user: socket.username,
+    });
   });
 });
 
