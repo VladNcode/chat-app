@@ -26,8 +26,11 @@ io.on('connection', socket => {
   socket.on('user have chosen a nickname', userName => {
     socket.username = userName;
     console.log(`${socket.username} connected`);
-    socket.broadcast.emit('message', generateMessage(`${userName} has joined a room 👋`));
-    socket.emit('message', generateMessage('You have joined a room'));
+    socket.broadcast.emit('message', {
+      ...generateMessage(`${userName} has joined a room 👋`),
+      user: 'Server',
+    });
+    socket.emit('message', { ...generateMessage('You have joined a room'), user: 'Server' });
   });
 
   socket.on('client location recieved', (data, callback) => {
@@ -48,7 +51,7 @@ io.on('connection', socket => {
 
     msg = filter.clean(msg);
 
-    io.emit('message', generateMessage(msg));
+    io.emit('message', { ...generateMessage(msg), user: socket.username });
     callback('Delivered!');
   });
 

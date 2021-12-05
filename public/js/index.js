@@ -6,7 +6,7 @@ const messageFormInput = document.getElementById('message-input');
 const messageFormButton = document.getElementById('message-btn');
 const messageList = document.querySelector('.message');
 const geoButton = document.querySelector('#send-location');
-const messages = document.querySelector('.messages');
+const messages = document.querySelector('#messages');
 
 //* Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
@@ -24,6 +24,7 @@ socket.on('message', data => {
   if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
+    user: data.user,
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
@@ -32,8 +33,9 @@ socket.on('message', data => {
 
 socket.on('server share location', data => {
   const html = Mustache.render(locationTemplate, {
+    user: data.user,
     location: data.loc,
-    message: `✉️ ${data.user} shared his location`,
+    message: `shared location`,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('afterbegin', html);
@@ -43,7 +45,7 @@ messageForm.addEventListener('submit', e => {
   e.preventDefault();
 
   if (messageFormInput.value.length > 0) {
-    let msg = user + '🗯️: ' + messageFormInput.value;
+    let msg = messageFormInput.value;
     messageFormInput.value = '';
     messageFormInput.focus();
     messageFormButton.setAttribute('disabled', 'disabled');

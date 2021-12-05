@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/style.css" />
-    <title>Document</title>
+    <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="./css/styles.min.css" />
+    <title>Chat app</title>
     <script
       defer
       src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"
@@ -20,30 +21,40 @@
   </head>
 
   <body>
-    <h1>Chat app</h1>
-    <h2 id="welcome"></h2>
-    <div class="container">
-      <form class="message-form">
-        <input type="text" id="message-input" autocomplete="off" />
-        <button id="message-btn">Click</button>
-      </form>
-      <button id="send-location">Send location</button>
-      <br />
+    <div class="chat">
+      <div class="chat__sidebar"></div>
+      <div class="chat__main">
+        <h1>Chat app</h1>
+        <h2 id="welcome"></h2>
 
-      <div class="messages"></div>
+        <div id="messages" class="chat__messages"></div>
+
+        <div class="compose">
+          <form class="message-form">
+            <input type="text" id="message-input" autocomplete="off" />
+            <button id="message-btn">Click</button>
+          </form>
+          <button id="send-location">Send location</button>
+        </div>
+      </div>
 
       <script id="message-template" type="text/html">
-        <div>
-          <p>{{createdAt}} {{message}}</p>
+        <div class="message">
+          <p>
+            <span class="message__name">{{user}} 🗯️</span>
+            <span class="message__meta">{{createdAt}}</span>
+          </p>
+          <p>{{message}}</p>
         </div>
       </script>
 
       <script id="location-template" type="text/html">
         <div>
           <p>
-            {{createdAt}}
-            <a class="location-link" href="{{location}}" target="_blank">{{message}}</a>
+            <span class="message__name">{{user}} 🗯️</span>
+            <span class="message__meta">{{createdAt}}</span>
           </p>
+          <p><a class="location-link" href="{{location}}" target="_blank">{{message}}</a></p>
         </div>
       </script>
     </div>
