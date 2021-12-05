@@ -12,7 +12,10 @@ const messages = document.querySelector('#messages');
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationTemplate = document.querySelector('#location-template').innerHTML;
 
-const user = prompt('Tell us your username');
+//* Options
+
+let { username: user, room } = Qs.parse(location.search.slice(1));
+
 if (user) socket.emit('user have chosen a nickname', user);
 
 socket.on('welcome joined user from the server', () => {
@@ -23,7 +26,7 @@ socket.on('message', data => {
   if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
-    user: data.user,
+    user: data.user === user ? 'You' : data.user,
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
