@@ -28,26 +28,17 @@ if (name && room)
 socket.on('welcome joined user from the server', data => {
   const { name, room } = data.user;
   welcomeMsg.textContent = `Welcome ${name}`;
-  roomname.textContent = `You are in "${room}"`;
+  roomname.textContent = `Room: "${room}"`;
 });
 
 socket.on('roomData', data => {
-  console.log(data);
-
   usersList.innerHTML = '';
   data.users.forEach(user => {
     const html = Mustache.render(usersTemplate, {
       user: user.name,
     });
-    usersList.insertAdjacentHTML('afterbegin', html);
+    usersList.insertAdjacentHTML('beforeend', html);
   });
-
-  // const html = Mustache.render(messageTemplate, {
-  //   user: 'Server',
-  //   message: `There are ${data.users.length} users currently in the room: ${data.room}`,
-  //   createdAt: moment(data.createdAt).format('HH:mm:ss'),
-  // });
-  // messages.insertAdjacentHTML('afterbegin', html);
 });
 
 socket.on('message', data => {
@@ -59,7 +50,8 @@ socket.on('message', data => {
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
-  messages.insertAdjacentHTML('afterbegin', html);
+  messages.insertAdjacentHTML('beforeend', html);
+  messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
 });
 
 socket.on('server share location', data => {
@@ -69,7 +61,7 @@ socket.on('server share location', data => {
     message: `Shared location`,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
-  messages.insertAdjacentHTML('afterbegin', html);
+  messages.insertAdjacentHTML('beforeend', html);
 });
 
 messageForm.addEventListener('submit', e => {
