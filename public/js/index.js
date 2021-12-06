@@ -8,10 +8,13 @@ const messageFormButton = document.getElementById('message-btn');
 const messageList = document.querySelector('.message');
 const geoButton = document.querySelector('#send-location');
 const messages = document.querySelector('#messages');
+const usersList = document.querySelector('.users');
+const roomname = document.querySelector('.room-title');
 
 //* Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationTemplate = document.querySelector('#location-template').innerHTML;
+const usersTemplate = document.querySelector('#users-template').innerHTML;
 
 //* Options
 
@@ -25,16 +28,26 @@ if (name && room)
 socket.on('welcome joined user from the server', data => {
   const { name, room } = data.user;
   welcomeMsg.textContent = `Welcome ${name}`;
-  welcomeRoom.textContent = `You are in "${room}"`;
+  roomname.textContent = `You are in "${room}"`;
 });
 
 socket.on('roomData', data => {
-  const html = Mustache.render(messageTemplate, {
-    user: 'Server',
-    message: `There are ${data.users.length} users currently in the room: ${data.room}`,
-    createdAt: moment(data.createdAt).format('HH:mm:ss'),
+  console.log(data);
+
+  usersList.innerHTML = '';
+  data.users.forEach(user => {
+    const html = Mustache.render(usersTemplate, {
+      user: user.name,
+    });
+    usersList.insertAdjacentHTML('afterbegin', html);
   });
-  messages.insertAdjacentHTML('afterbegin', html);
+
+  // const html = Mustache.render(messageTemplate, {
+  //   user: 'Server',
+  //   message: `There are ${data.users.length} users currently in the room: ${data.room}`,
+  //   createdAt: moment(data.createdAt).format('HH:mm:ss'),
+  // });
+  // messages.insertAdjacentHTML('afterbegin', html);
 });
 
 socket.on('message', data => {

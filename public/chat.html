@@ -22,7 +22,11 @@
 
   <body>
     <div class="chat">
-      <div class="chat__sidebar"></div>
+      <div class="chat__sidebar">
+        <div class="room-title"></div>
+        <div class="list-title">Current users:</div>
+        <ul class="users"></ul>
+      </div>
       <div class="chat__main">
         <div class="welcome-messages">
           <h2 id="welcome"></h2>
@@ -58,6 +62,10 @@
           </p>
           <p><a id="colored-link" href="{{location}}" target="_blank">{{message}}</a></p>
         </div>
+      </script>
+
+      <script id="users-template" type="text/html">
+        <li class="users">{{user}}</li>
       </script>
     </div>
   </body>
