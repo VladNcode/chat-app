@@ -85,6 +85,10 @@ button:disabled {
 
 /* Chat Page Layout */
 
+#welcome {
+  padding-top: 15px;
+}
+
 .welcome-messages {
   padding-left: 24px;
 }

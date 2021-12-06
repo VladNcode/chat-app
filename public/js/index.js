@@ -27,7 +27,7 @@ if (name && room)
 
 socket.on('welcome joined user from the server', data => {
   const { name, room } = data.user;
-  welcomeMsg.textContent = `Welcome ${name}`;
+  welcomeMsg.textContent = `Welcome ${name}!`;
   roomname.textContent = `Room: "${room}"`;
 });
 
