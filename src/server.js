@@ -5,6 +5,7 @@ const socketio = require('socket.io');
 const Filter = require('bad-words');
 
 const { generateMessage } = require('./utils/messages');
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users');
 
 process.on('uncaughtException', err => {
   console.log(err.name, err.message);
@@ -23,29 +24,32 @@ const io = socketio(server);
 //! socket.broadcast.to.emit === emits event to everyone except current user (limited to room)
 
 io.on('connection', socket => {
-  socket.on('user have chosen a nickname', ({ user, room }) => {
-    socket.emit('welcome joined user from the server');
+  socket.on('join', ({ name, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, name, room });
+    if (error) return callback(error);
 
-    socket.join(room);
-    socket.username = user;
-    console.log(`${socket.username} connected`);
+    socket.emit('welcome joined user from the server', { user });
 
-    io.to(room).emit('message', {
-      ...generateMessage(`${user} has joined a room 👋`),
+    socket.broadcast.to(user.room).emit('message', {
+      ...generateMessage(`${user.name} has joined a room ${user.room} 👋`),
       user: 'Server',
     });
 
-    // socket.broadcast.emit('message', {
-    //   ...generateMessage(`${user} has joined a room 👋`),
-    //   user: 'Server',
-    // });
+    socket.emit('message', {
+      ...generateMessage(`You joined a room ${user.room} 👋`),
+      user: 'Server',
+    });
 
-    // socket.emit('message', { ...generateMessage('You have joined a room'), user: 'Server' });
+    socket.join(user.room);
+
+    io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+
+    // callback('You joined a room successfully');
   });
 
   socket.on('client location recieved', (data, callback) => {
     socket.broadcast.emit('server share location', {
-      user: socket.username,
+      user: data.user,
       loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
       createdAt: new Date().getTime(),
     });
@@ -61,16 +65,28 @@ io.on('connection', socket => {
 
     msg = filter.clean(msg);
 
-    io.emit('message', { ...generateMessage(msg), user: socket.username });
+    const user = getUser(socket.id);
+    io.to(user.room).emit('message', {
+      ...generateMessage(msg),
+      user: user.name,
+    });
+
     callback('Delivered!');
   });
 
   socket.on('disconnect', () => {
-    if (socket.username) console.log(`${socket.username} disconnected`);
-    socket.broadcast.emit('message', {
-      ...generateMessage(`${socket.username} left the room 👋`),
-      user: socket.username,
-    });
+    const user = removeUser(socket.id);
+
+    if (user) {
+      console.log(`${user.name} disconnected`);
+
+      io.to(user.room).emit('message', {
+        ...generateMessage(`${user.name} left the room 👋`),
+        user: 'Server',
+      });
+
+      io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+    }
   });
 });
 

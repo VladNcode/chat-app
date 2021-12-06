@@ -15,13 +15,26 @@ const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 //* Options
 
-let { username: user, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
+let { username: name, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
-if (user && room) socket.emit('user have chosen a nickname', { user, room });
+if (name && room)
+  socket.emit('join', { name, room }, message => {
+    return (welcomeMsg.textContent = message);
+  });
 
-socket.on('welcome joined user from the server', () => {
-  welcomeMsg.textContent = `Welcome ${user}`;
+socket.on('welcome joined user from the server', data => {
+  const { name, room } = data.user;
+  welcomeMsg.textContent = `Welcome ${name}`;
   welcomeRoom.textContent = `You are in "${room}"`;
+});
+
+socket.on('roomData', data => {
+  const html = Mustache.render(messageTemplate, {
+    user: 'Server',
+    message: `There are ${data.users.length} users currently in the room: ${data.room}`,
+    createdAt: moment(data.createdAt).format('HH:mm:ss'),
+  });
+  messages.insertAdjacentHTML('afterbegin', html);
 });
 
 socket.on('message', data => {
@@ -78,6 +91,7 @@ geoButton.addEventListener('click', function () {
   const success = function (pos) {
     const crd = pos.coords;
     const data = {
+      user: name,
       lat: crd.latitude,
       lng: crd.longitude,
     };
