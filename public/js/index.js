@@ -27,9 +27,15 @@ if (username && room)
     }
   });
 
-socket.on('welcome joined user from the server', data => {
-  const { username, room } = data.user;
-  welcomeMsg.textContent = `Welcome ${username}!`;
+socket.on('welcome joined user from the server', ({ username, text, createdAt }) => {
+  const html = Mustache.render(messageTemplate, {
+    user: 'Server',
+    message: text,
+    createdAt: moment(createdAt).format('HH:mm:ss'),
+  });
+  messages.insertAdjacentHTML('beforeend', html);
+  messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+
   roomname.textContent = `Room: "${room}"`;
 });
 

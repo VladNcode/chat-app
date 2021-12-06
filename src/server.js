@@ -28,17 +28,16 @@ io.on('connection', socket => {
     const { error, user } = addUser({ id: socket.id, username, room });
     if (error) return callback(error);
 
-    socket.emit('welcome joined user from the server', { user });
+    socket.broadcast
+      .to(user.room)
+      .emit('message', generateMessage(`${user.username} has joined a room 👋`));
 
-    socket.broadcast.to(user.room).emit('message', {
-      ...generateMessage(`${user.username} has joined a room 👋`),
-      username: 'Server',
-    });
+    socket.emit('message', generateMessage(`You joined a room 👋`));
 
-    socket.emit('message', {
-      ...generateMessage(`You joined a room 👋`),
-      username: 'Server',
-    });
+    socket.emit(
+      'welcome joined user from the server',
+      generateMessage(`Welcome ${user.username}!`)
+    );
 
     socket.join(user.room);
 
@@ -47,7 +46,7 @@ io.on('connection', socket => {
 
   socket.on('client location recieved', (data, callback) => {
     socket.broadcast.to(data.room).emit('server share location', {
-      user: data.username,
+      user: data.username.trim().toLowerCase(),
       loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
       createdAt: new Date().getTime(),
     });
@@ -64,10 +63,7 @@ io.on('connection', socket => {
     msg = filter.clean(msg);
 
     const user = getUser(socket.id);
-    io.to(user.room).emit('message', {
-      ...generateMessage(msg),
-      username: user.username,
-    });
+    io.to(user.room).emit('message', generateMessage(msg, user.username));
 
     callback('Delivered!');
   });
@@ -78,10 +74,7 @@ io.on('connection', socket => {
     if (user) {
       console.log(`${user.username} disconnected`);
 
-      io.to(user.room).emit('message', {
-        ...generateMessage(`${user.username} left the room 👋`),
-        username: 'Server',
-      });
+      io.to(user.room).emit('message', generateMessage(`${user.username} left the room 👋`));
 
       io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
     }
