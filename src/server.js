@@ -31,20 +31,18 @@ io.on('connection', socket => {
     socket.emit('welcome joined user from the server', { user });
 
     socket.broadcast.to(user.room).emit('message', {
-      ...generateMessage(`${user.name} has joined a room ${user.room} 👋`),
+      ...generateMessage(`${user.name} has joined a room 👋`),
       user: 'Server',
     });
 
     socket.emit('message', {
-      ...generateMessage(`You joined a room ${user.room} 👋`),
+      ...generateMessage(`You joined a room 👋`),
       user: 'Server',
     });
 
     socket.join(user.room);
 
     io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
-
-    // callback('You joined a room successfully');
   });
 
   socket.on('client location recieved', (data, callback) => {
