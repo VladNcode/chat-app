@@ -17,17 +17,19 @@ const locationTemplate = document.querySelector('#location-template').innerHTML;
 const usersTemplate = document.querySelector('#users-template').innerHTML;
 
 //* Options
+let { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
-let { username: name, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
-
-if (name && room)
-  socket.emit('join', { name, room }, message => {
-    return (welcomeMsg.textContent = message);
+if (username && room)
+  socket.emit('join', { username, room }, error => {
+    if (error) {
+      alert(error);
+      location.href = '/';
+    }
   });
 
 socket.on('welcome joined user from the server', data => {
-  const { name, room } = data.user;
-  welcomeMsg.textContent = `Welcome ${name}!`;
+  const { username, room } = data.user;
+  welcomeMsg.textContent = `Welcome ${username}!`;
   roomname.textContent = `Room: "${room}"`;
 });
 
@@ -35,7 +37,7 @@ socket.on('roomData', data => {
   usersList.innerHTML = '';
   data.users.forEach(user => {
     const html = Mustache.render(usersTemplate, {
-      user: user.name,
+      user: user.username,
     });
     usersList.insertAdjacentHTML('beforeend', html);
   });
@@ -46,7 +48,7 @@ socket.on('message', data => {
 
   const html = Mustache.render(messageTemplate, {
     // user: data.user === user ? 'You' : data.user,
-    user: data.user,
+    user: data.username,
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
@@ -62,6 +64,7 @@ socket.on('server share location', data => {
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('beforeend', html);
+  messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
 });
 
 messageForm.addEventListener('submit', e => {
@@ -96,7 +99,8 @@ geoButton.addEventListener('click', function () {
   const success = function (pos) {
     const crd = pos.coords;
     const data = {
-      user: name,
+      username,
+      room,
       lat: crd.latitude,
       lng: crd.longitude,
     };

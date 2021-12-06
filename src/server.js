@@ -24,20 +24,20 @@ const io = socketio(server);
 //! socket.broadcast.to.emit === emits event to everyone except current user (limited to room)
 
 io.on('connection', socket => {
-  socket.on('join', ({ name, room }, callback) => {
-    const { error, user } = addUser({ id: socket.id, name, room });
+  socket.on('join', ({ username, room }, callback) => {
+    const { error, user } = addUser({ id: socket.id, username, room });
     if (error) return callback(error);
 
     socket.emit('welcome joined user from the server', { user });
 
     socket.broadcast.to(user.room).emit('message', {
-      ...generateMessage(`${user.name} has joined a room 👋`),
-      user: 'Server',
+      ...generateMessage(`${user.username} has joined a room 👋`),
+      username: 'Server',
     });
 
     socket.emit('message', {
       ...generateMessage(`You joined a room 👋`),
-      user: 'Server',
+      username: 'Server',
     });
 
     socket.join(user.room);
@@ -46,8 +46,8 @@ io.on('connection', socket => {
   });
 
   socket.on('client location recieved', (data, callback) => {
-    socket.broadcast.emit('server share location', {
-      user: data.user,
+    socket.broadcast.to(data.room).emit('server share location', {
+      user: data.username,
       loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
       createdAt: new Date().getTime(),
     });
@@ -66,7 +66,7 @@ io.on('connection', socket => {
     const user = getUser(socket.id);
     io.to(user.room).emit('message', {
       ...generateMessage(msg),
-      user: user.name,
+      username: user.username,
     });
 
     callback('Delivered!');
@@ -76,11 +76,11 @@ io.on('connection', socket => {
     const user = removeUser(socket.id);
 
     if (user) {
-      console.log(`${user.name} disconnected`);
+      console.log(`${user.username} disconnected`);
 
       io.to(user.room).emit('message', {
-        ...generateMessage(`${user.name} left the room 👋`),
-        user: 'Server',
+        ...generateMessage(`${user.username} left the room 👋`),
+        username: 'Server',
       });
 
       io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
