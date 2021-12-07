@@ -19,6 +19,11 @@ const usersTemplate = document.querySelector('#users-template').innerHTML;
 //* Options
 let { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
+if (username === '' || room === '') {
+  alert('You must choose a username and a room');
+  location.href = '/';
+}
+
 if (username && room)
   socket.emit('join', { username, room }, error => {
     if (error) {
@@ -53,7 +58,6 @@ socket.on('message', data => {
   if (data.text === 'undefined left the room 👋') return;
 
   const html = Mustache.render(messageTemplate, {
-    // user: data.user === user ? 'You' : data.user,
     user: data.username,
     message: data.text,
     createdAt: moment(data.createdAt).format('HH:mm:ss'),

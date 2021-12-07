@@ -74,7 +74,7 @@ io.on('connection', socket => {
     if (user) {
       console.log(`${user.username} disconnected`);
 
-      io.to(user.room).emit('message', generateMessage(`${user.username} left the room 👋`));
+      io.to(user.room).emit('message', generateMessage(`${user.username} has left the room 👋`));
 
       io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
     }
