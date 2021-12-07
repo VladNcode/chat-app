@@ -45,7 +45,7 @@ io.on('connection', socket => {
   });
 
   socket.on('client location recieved', (data, callback) => {
-    socket.broadcast.to(data.room).emit('server share location', {
+    io.to(data.room).emit('server share location', {
       user: data.username.trim().toLowerCase(),
       loc: `https://google.com/maps?q=${data.lat},${data.lng}`,
       createdAt: new Date().getTime(),
