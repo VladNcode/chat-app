@@ -19,6 +19,29 @@ const usersTemplate = document.querySelector('#users-template').innerHTML;
 //* Options
 let { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
+const autoscroll = () => {
+  // Last message element
+  const lastMessage = messages.lastElementChild;
+
+  // Height of the last message
+  const lastMessageStyles = getComputedStyle(lastMessage);
+  const lastMessageMargin = parseInt(lastMessageStyles.marginBottom);
+  const lastMessageHeight = lastMessage.offsetHeight + lastMessageMargin;
+
+  // Visible height
+  const visibleHeight = messages.offsetHeight;
+
+  // Height of messages container
+  const containerHeight = messages.scrollHeight;
+
+  // How far have i scrolled?
+  const scrollOffset = messages.scrollTop + visibleHeight;
+
+  if (containerHeight - lastMessageHeight <= scrollOffset) {
+    messages.scrollTop = messages.scrollHeight;
+  }
+};
+
 if (username === '' || room === '') {
   alert('You must choose a username and a room');
   location.href = '/';
@@ -39,7 +62,8 @@ socket.on('welcome joined user from the server', ({ username, text, createdAt })
     createdAt: moment(createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('beforeend', html);
-  messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+  // messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+  autoscroll();
 
   roomname.textContent = `Room: "${room}"`;
 });
@@ -63,7 +87,8 @@ socket.on('message', data => {
     createdAt: moment(data.createdAt).format('HH:mm:ss'),
   });
   messages.insertAdjacentHTML('beforeend', html);
-  messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+  // messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+  autoscroll();
 });
 
 socket.on('server share location', data => {
